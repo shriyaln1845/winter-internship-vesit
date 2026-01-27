@@ -54,7 +54,7 @@ async def predict_risk(
     height: float = Form(...),
     weight: float = Form(...),
     physical_activity_level: str = Form(...),
-    daily_steps: int = Form(...),
+    daily_steps: int = Form(5000),
     diet_quality: str = Form(...),
     sleep_duration: float = Form(...),
     stress_level: str = Form(...),
@@ -113,13 +113,27 @@ async def predict_risk(
             print(f"Prediction Error: {e}")
             risk_level = "Error"
 
+    # Create readable labels for dashboard
+    display_info = {
+        "Age": age,
+        "Gender": gender,
+        "BMI": round(bmi, 1),
+        "Activity": physical_activity_level,
+        "Steps": daily_steps,
+        "Diet": diet_quality,
+        "Sleep": f"{sleep_duration}h",
+        "Stress": stress_level,
+        "Family History": family_history
+    }
+
     # Context for Dashboard
     context = {
         "request": request,
         "current_year": datetime.now().year,
         "risk_score": risk_score,
         "risk_level": risk_level,
-        "inputs": input_dict, # Pass back inputs to display summary
+        "inputs": input_dict,
+        "display_info": display_info,
         "raw_bmi": round(bmi, 1)
     }
 

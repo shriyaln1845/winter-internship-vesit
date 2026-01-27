@@ -25,7 +25,7 @@ def test_prediction():
     }
 
     try:
-        response = requests.post(url, json=payload)
+        response = requests.post(url, data=payload)
         print(f"Status: {response.status_code}")
         print(f"Response: {response.json()}")
         if response.status_code == 200:

@@ -58,20 +58,20 @@
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <p class="text-xs text-gray-400 uppercase">BMI</p>
-                        <p class="text-xl font-bold text-gray-800">{{ raw_bmi }}</p>
+                        <p class="text-xl font-bold text-gray-800">{{ display_info.BMI }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <p class="text-xs text-gray-400 uppercase">Input Age</p>
-                        <p class="text-xl font-bold text-gray-800">{{ inputs.age }}</p>
+                        <p class="text-xl font-bold text-gray-800">{{ display_info.Age }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                         <p class="text-xs text-gray-400 uppercase">Activity</p>
-                        <p class="text-xl font-bold text-gray-800">{{ inputs.physical_activity_level }}</p>
+                        <p class="text-xl font-bold text-gray-800">{{ display_info.Activity }}</p>
                     </div>
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                        <p class="text-xs text-gray-400 uppercase">Family History</p>
+                        <p class="text-xs text-gray-400 uppercase">Stress Level</p>
                         <p class="text-xl font-bold text-gray-800">
-                            {% if inputs.family_history_binary == 1 %}Yes{% else %}No{% endif %}
+                            {{ display_info.Stress }}
                         </p>
                     </div>
                 </div>
@@ -114,7 +114,7 @@
                                 <span
                                     class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center mr-3 mt-0.5">i</span>
                                 <span class="text-gray-600"><strong>Sleep & Stress:</strong> Managing stress ({{
-                                    inputs.stress_level }}) and getting consistent sleep ({{ inputs.sleep_duration }}h)
+                                    display_info.Stress }}) and getting consistent sleep ({{ display_info.Sleep }})
                                     are key metabolic factors.</span>
                             </li>
                         </ul>
@@ -135,7 +135,7 @@
 <script>
     // Chart.js Configuration
     const ctx = document.getElementById('riskChart').getContext('2d');
-    const riskScore = {{ risk_score }};
+    const riskScore = parseFloat("{{ risk_score }}") || 0;
     const remainder = 100 - riskScore;
 
     // Color logic
