@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Your Results - Diabetes Risk AI{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl font-extrabold text-gray-900">Your Health Assessment</h1>
+            <p class="mt-2 text-gray-600">Based on the data provided, here is your AI-analyzed risk profile.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Column: Risk Score & Gauge -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-lg p-6 text-center h-full">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Risk Probability</h2>
+
+                    <div class="relative w-64 h-64 mx-auto mb-6">
+                        <canvas id="riskChart"></canvas>
+                        <!-- Center Text Overlay -->
+                        <div
+                            class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pt-4">
+                            <span class="text-5xl font-bold text-gray-900">{{ risk_score }}%</span>
+                            <span class="text-sm uppercase tracking-wider font-semibold 
+                                {% if risk_level == 'High' %}text-red-500
+                                {% elif risk_level == 'Moderate' %}text-yellow-500
+                                {% else %}text-green-500{% endif %}">
+                                {{ risk_level }} Risk
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 p-4 rounded-xl 
+                        {% if risk_level == 'High' %}bg-red-50 text-red-700 border border-red-100
+                        {% elif risk_level == 'Moderate' %}bg-yellow-50 text-yellow-700 border border-yellow-100
+                        {% else %}bg-green-50 text-green-700 border border-green-100{% endif %}">
+                        <p class="font-medium">
+                            {% if risk_level == 'High' %}
+                            Action Recommended: Consult a doctor.
+                            {% elif risk_level == 'Moderate' %}
+                            Caution: Monitor your lifestyle.
+                            {% else %}
+                            Great! Keep up the healthy habits.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Details & Advice -->
+            <div class="lg:col-span-2 space-y-8">
+
+                <!-- Key Factors (Visual Cards) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-400 uppercase">BMI</p>
+                        <p class="text-xl font-bold text-gray-800">{{ raw_bmi }}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-400 uppercase">Input Age</p>
+                        <p class="text-xl font-bold text-gray-800">{{ inputs.age }}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-400 uppercase">Activity</p>
+                        <p class="text-xl font-bold text-gray-800">{{ inputs.physical_activity_level }}</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-xs text-gray-400 uppercase">Family History</p>
+                        <p class="text-xl font-bold text-gray-800">
+                            {% if inputs.family_history_binary == 1 %}Yes{% else %}No{% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-800 text-white">
+                        <h3 class="font-bold text-lg">Tailored Recommendations</h3>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-4">
+                            {% if risk_level == 'High' or risk_level == 'Moderate' %}
+                            <li class="flex items-start">
+                                <span
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center mr-3 mt-0.5">!</span>
+                                <span class="text-gray-600"><strong>Schedule a Setup:</strong> Consider checking your
+                                    blood sugar levels (HbA1c) with a professional soon.</span>
+                            </li>
+                            {% endif %}
+
+                            {% if inputs.physical_activity_level == 1 %} <!-- 1 is Low -->
+                            <li class="flex items-start">
+                                <span
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center mr-3 mt-0.5">→</span>
+                                <span class="text-gray-600"><strong>Start Moving:</strong> Aim for at least 30 minutes
+                                    of brisk walking per day to lower insulin resistance.</span>
+                            </li>
+                            {% endif %}
+
+                            {% if inputs.diet_quality == 1 %} <!-- 1 is Low -->
+                            <li class="flex items-start">
+                                <span
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-500 flex items-center justify-center mr-3 mt-0.5">→</span>
+                                <span class="text-gray-600"><strong>Diet Check:</strong> Reducing processed sugars and
+                                    carbohydrates can have an immediate positive impact.</span>
+                            </li>
+                            {% endif %}
+
+                            <li class="flex items-start">
+                                <span
+                                    class="flex-shrink-0 w-6 h-6 rounded-full bg-purple-100 text-purple-500 flex items-center justify-center mr-3 mt-0.5">i</span>
+                                <span class="text-gray-600"><strong>Sleep & Stress:</strong> Managing stress ({{
+                                    inputs.stress_level }}) and getting consistent sleep ({{ inputs.sleep_duration }}h)
+                                    are key metabolic factors.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <a href="/risk-test" class="text-brand-600 font-medium hover:text-brand-800 flex items-center">
+                        Retake Assessment <span class="ml-2">→</span>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Chart.js Configuration
+    const ctx = document.getElementById('riskChart').getContext('2d');
+    const riskScore = {{ risk_score }};
+    const remainder = 100 - riskScore;
+
+    // Color logic
+    let color = '#22c55e'; // Green
+    if (riskScore >= 30) color = '#eab308'; // Yellow
+    if (riskScore >= 60) color = '#ef4444'; // Red
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Risk', 'Safe'],
+            datasets: [{
+                data: [riskScore, remainder],
+                backgroundColor: [
+                    color,
+                    '#f3f4f6' // Gray-100 for background
+                ],
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            cutout: '80%', // Thin ring
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: false }
+            },
+            animation: {
+                animateScale: true,
+                animateRotate: true
+            }
+        }
+    });
+</script>
+{% endblock %}
